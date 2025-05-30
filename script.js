@@ -1,50 +1,28 @@
 // Datos en memoria
+
 const duenos = [];
 const mascotas = [];
 
-// Función para generar IDs únicos simples
-const generarId = () => Math.random().toString(36).substr(2, 9);
-
-// Validaciones básicas
-const validarTexto = texto => texto && texto.trim() !== '';
-const validarNumeroPositivo = num => !isNaN(num) && Number(num) > 0;
+const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Otro'];
 const estadosSaludValidos = ['Sano', 'Enfermo', 'En tratamiento'];
-const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Pez', 'Otro'];
 
-// Función para mostrar menú y pedir opción
-function mostrarMenu() {
-  return prompt(
-    `Menú Veterinaria Patitas Felices\n
-1. Registrar un nuevo dueño
-2. Registrar una nueva mascota
-3. Listar todas las mascotas
-4. Buscar una mascota por nombre
-5. Actualizar el estado de salud de una mascota
-6. Eliminar una mascota por nombre
-7. Ver mascotas de un dueño (por cédula)
-8. Salir
-\nIngresa el número de la opción:`
-  );
-}
+// Utilidades
 
-// Función principal que controla el flujo sincrónico
-function main() {
-  let opcion;
-  do {
-    opcion = mostrarMenu();
-    switch(opcion) {
-      case '1': registrarDuenosAsync(); break;
-      case '2': registrarMascotaAsync(); break;
-      case '3': listarMascotas(); break;
-      case '4': buscarMascotaPorNombre(); break;
-      case '5': actualizarEstadoMascota(); break;
-      case '6': eliminarMascotaPorNombre(); break;
-      case '7': verMascotasDeDuenos(); break;
-      case '8': alert('Gracias por usar la app. ¡Hasta luego!'); break;
-      default: alert('Opción inválida, por favor intenta de nuevo.');
-    }
-  } while(opcion !== '8');
-}
+const generarId = () => crypto.randomUUID();
+const validarTexto = (texto) => texto && texto.trim() !== '';
+const validarNumeroPositivo = (n) => !isNaN(n) && Number(n) > 0;
+
+// Parte 1: CRUD Básico
+
+const listarMascotas = () => {
+  if (mascotas.length === 0) return alert('No hay mascotas registradas.');
+  mascotas.forEach((m, i) => {
+    const dueno = duenos.find(d => d.id === m.idDueno);
+    console.log(`\n${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad}\n   Peso: ${m.peso} kg\n   Estado: ${m.estadoSalud}\n   Dueño: ${dueno ? dueno.nombre : 'Desconocido'}`);
+  });
+};
+
+// Funciones Asíncronas
 
 function registrarDuenoAsync(callback) {
   const nombre = prompt('Ingrese el nombre del dueño:');
@@ -52,7 +30,6 @@ function registrarDuenoAsync(callback) {
   const telefono = prompt('Ingrese el teléfono:');
   const correo = prompt('Ingrese el correo electrónico:');
 
-  // Simulamos una validación asincrónica de 1.5 segundos
   setTimeout(() => {
     if (![nombre, cedula, telefono, correo].every(validarTexto)) {
       alert('Todos los campos deben estar completos.');
@@ -65,14 +42,7 @@ function registrarDuenoAsync(callback) {
       return callback && callback(false);
     }
 
-    const nuevoDueno = {
-      id: generarId(),
-      nombre,
-      cedula,
-      telefono,
-      correo
-    };
-
+    const nuevoDueno = { id: generarId(), nombre, cedula, telefono, correo };
     duenos.push(nuevoDueno);
     alert('Dueño registrado correctamente (validación simulada).');
     callback && callback(true);
@@ -87,14 +57,13 @@ function registrarMascotaAsync(callback) {
   const estadoSalud = prompt(`Ingrese el estado de salud (${estadosSaludValidos.join(', ')}):`);
   const cedulaDueno = prompt('Ingrese la cédula del dueño:');
 
-  // Simulamos verificación de existencia del dueño (2 segundos)
   setTimeout(() => {
     if (![nombre, especie, estadoSalud, cedulaDueno].every(validarTexto) ||
         !validarNumeroPositivo(edad) ||
         !validarNumeroPositivo(peso) ||
         !especiesValidas.includes(especie) ||
         !estadosSaludValidos.includes(estadoSalud)) {
-      alert('Datos inválidos. Verifica los campos e intenta nuevamente.');
+      alert('Datos inválidos.');
       return callback && callback(false);
     }
 
@@ -120,109 +89,96 @@ function registrarMascotaAsync(callback) {
   }, 2000);
 }
 
+function buscarMascotaPorNombreAsync() {
+  const nombre = prompt('Ingrese el nombre de la mascota a buscar:');
+  if (!validarTexto(nombre)) return alert('Nombre inválido.');
 
-function listarMascotas() {
-  if (mascotas.length === 0) {
-    alert("No hay mascotas registradas.");
-    return;
-  }
-
-  let listado = "Mascotas registradas:\n\n";
-  mascotas.forEach((m, i) => {
-    const dueno = duenos.find(d => d.id === m.idDueno);
-    listado += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad} años\n   Peso: ${m.peso} kg\n   Estado de salud: ${m.estadoSalud}\n   Dueño: ${dueno ? dueno.nombre : "Desconocido"}\n\n`;
+  new Promise(resolve => {
+    setTimeout(() => {
+      const resultados = mascotas.filter(m => m.nombre.toLowerCase() === nombre.toLowerCase());
+      resolve(resultados);
+    }, 1500);
+  }).then(resultados => {
+    if (resultados.length === 0) return alert('No se encontró ninguna mascota.');
+    let mensaje = 'Mascotas encontradas:\n\n';
+    resultados.forEach((m, i) => {
+      const dueno = duenos.find(d => d.id === m.idDueno);
+      mensaje += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad}\n   Peso: ${m.peso} kg\n   Estado: ${m.estadoSalud}\n   Dueño: ${dueno ? dueno.nombre : 'Desconocido'}\n\n`;
+    });
+    alert(mensaje);
   });
-
-  alert(listado);
 }
 
-function buscarMascotaPorNombre() {
-  const nombreBuscado = prompt("Ingrese el nombre de la mascota a buscar:");
-  if (!validarTexto(nombreBuscado)) {
-    alert("Nombre inválido.");
-    return;
-  }
-
-  const encontrada = mascotas.filter(m => m.nombre.toLowerCase() === nombreBuscado.toLowerCase());
-  if (encontrada.length === 0) {
-    alert("No se encontró ninguna mascota con ese nombre.");
-    return;
-  }
-
-  let resultado = "Mascotas encontradas:\n\n";
-  encontrada.forEach((m, i) => {
-    const dueno = duenos.find(d => d.id === m.idDueno);
-    resultado += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad} años\n   Peso: ${m.peso} kg\n   Estado de salud: ${m.estadoSalud}\n   Dueño: ${dueno ? dueno.nombre : "Desconocido"}\n\n`;
-  });
-
-  alert(resultado);
-}
-
-function actualizarEstadoMascota() {
-  const nombre = prompt("Ingrese el nombre de la mascota a actualizar:");
-  if (!validarTexto(nombre)) {
-    alert("Nombre inválido.");
-    return;
-  }
-
+async function actualizarEstadoMascotaAsync() {
+  const nombre = prompt('Nombre de la mascota a actualizar:');
+  if (!validarTexto(nombre)) return alert('Nombre inválido.');
   const mascota = mascotas.find(m => m.nombre.toLowerCase() === nombre.toLowerCase());
-  if (!mascota) {
-    alert("No se encontró ninguna mascota con ese nombre.");
-    return;
-  }
+  if (!mascota) return alert('Mascota no encontrada.');
 
-  const nuevoEstado = prompt(`Ingrese el nuevo estado de salud (${estadosSaludValidos.join(', ')}):`);
-  if (!estadosSaludValidos.includes(nuevoEstado)) {
-    alert("Estado de salud inválido.");
-    return;
-  }
+  const nuevoEstado = prompt(`Nuevo estado de salud (${estadosSaludValidos.join(', ')}):`);
+  if (!estadosSaludValidos.includes(nuevoEstado)) return alert('Estado inválido.');
 
+  await new Promise(res => setTimeout(res, 1000));
   mascota.estadoSalud = nuevoEstado;
-  alert("Estado de salud actualizado correctamente.");
+  alert('Estado actualizado (espera simulada).');
 }
 
-function eliminarMascotaPorNombre() {
-  const nombre = prompt("Ingrese el nombre de la mascota a eliminar:");
-  if (!validarTexto(nombre)) {
-    alert("Nombre inválido.");
-    return;
-  }
+function eliminarMascotaPorNombreAsync() {
+  const nombre = prompt('Nombre de la mascota a eliminar:');
+  if (!validarTexto(nombre)) return alert('Nombre inválido.');
 
-  const index = mascotas.findIndex(m => m.nombre.toLowerCase() === nombre.toLowerCase());
-  if (index === -1) {
-    alert("No se encontró ninguna mascota con ese nombre.");
-    return;
-  }
-
-  mascotas.splice(index, 1);
-  alert("Mascota eliminada correctamente.");
+  new Promise(resolve => {
+    setTimeout(() => {
+      const index = mascotas.findIndex(m => m.nombre.toLowerCase() === nombre.toLowerCase());
+      resolve(index);
+    }, 2000);
+  }).then(index => {
+    if (index === -1) return alert('Mascota no encontrada.');
+    if (confirm('¿Eliminar esta mascota?')) {
+      mascotas.splice(index, 1);
+      alert('Mascota eliminada.');
+    } else {
+      alert('Eliminación cancelada.');
+    }
+  });
 }
 
-function verMascotasDeDuenos() {
-  const cedula = prompt("Ingrese la cédula del dueño:");
-  if (!validarTexto(cedula)) {
-    alert("Cédula inválida.");
-    return;
-  }
-
+async function verMascotasDeDuenoAsync() {
+  const cedula = prompt('Ingrese la cédula del dueño:');
+  if (!validarTexto(cedula)) return alert('Cédula inválida.');
   const dueno = duenos.find(d => d.cedula === cedula);
-  if (!dueno) {
-    alert("No se encontró ningún dueño con esa cédula.");
-    return;
-  }
+  if (!dueno) return alert('Dueño no encontrado.');
+
+  await new Promise(res => setTimeout(res, 2000));
 
   const mascotasDelDueno = mascotas.filter(m => m.idDueno === dueno.id);
-  if (mascotasDelDueno.length === 0) {
-    alert(`El dueño ${dueno.nombre} no tiene mascotas registradas.`);
-    return;
-  }
+  if (mascotasDelDueno.length === 0) return alert('No tiene mascotas registradas.');
 
   let mensaje = `Mascotas de ${dueno.nombre}:\n\n`;
   mascotasDelDueno.forEach((m, i) => {
-    mensaje += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad} años\n   Peso: ${m.peso} kg\n   Estado de salud: ${m.estadoSalud}\n\n`;
+    mensaje += `${i + 1}. ${m.nombre} - ${m.especie}, ${m.edad} años, ${m.peso}kg, ${m.estadoSalud}\n`;
   });
-
   alert(mensaje);
+}
+
+// Menú principal
+
+function main() {
+  let opcion;
+  do {
+    opcion = prompt(`Seleccione una opción:\n\n1. Registrar dueño\n2. Registrar mascota\n3. Listar mascotas\n4. Buscar mascota\n5. Actualizar estado de salud\n6. Eliminar mascota\n7. Ver mascotas de un dueño\n8. Salir`);
+    switch (opcion) {
+      case '1': registrarDuenoAsync(); break;
+      case '2': registrarMascotaAsync(); break;
+      case '3': listarMascotas(); break;
+      case '4': buscarMascotaPorNombreAsync(); break;
+      case '5': actualizarEstadoMascotaAsync(); break;
+      case '6': eliminarMascotaPorNombreAsync(); break;
+      case '7': verMascotasDeDuenoAsync(); break;
+      case '8': alert('Saliendo...'); break;
+      default: alert('Opción inválida');
+    }
+  } while (opcion !== '8');
 }
 
 window.main = main;
