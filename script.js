@@ -33,8 +33,8 @@ function main() {
   do {
     opcion = mostrarMenu();
     switch(opcion) {
-      case '1': registrarDuenos(); break;
-      case '2': registrarMascota(); break;
+      case '1': registrarDuenosAsync(); break;
+      case '2': registrarMascotaAsync(); break;
       case '3': listarMascotas(); break;
       case '4': buscarMascotaPorNombre(); break;
       case '5': actualizarEstadoMascota(); break;
@@ -46,71 +46,80 @@ function main() {
   } while(opcion !== '8');
 }
 
-function registrarDuenos() {
+function registrarDuenoAsync(callback) {
   const nombre = prompt('Ingrese el nombre del dueño:');
-  if (!validarTexto(nombre)) return alert('Nombre inválido.');
-
   const cedula = prompt('Ingrese la cédula:');
-  if (!validarTexto(cedula)) return alert('Cédula inválida.');
-
   const telefono = prompt('Ingrese el teléfono:');
-  if (!validarTexto(telefono)) return alert('Teléfono inválido.');
-
   const correo = prompt('Ingrese el correo electrónico:');
-  if (!validarTexto(correo)) return alert('Correo inválido.');
 
-  // Verificar que la cédula sea única
-  const existe = duenos.some(d => d.cedula === cedula);
-  if (existe) return alert('Ya existe un dueño con esa cédula.');
+  // Simulamos una validación asincrónica de 1.5 segundos
+  setTimeout(() => {
+    if (![nombre, cedula, telefono, correo].every(validarTexto)) {
+      alert('Todos los campos deben estar completos.');
+      return callback && callback(false);
+    }
 
-  const nuevoDueno = {
-    id: generarId(),
-    nombre,
-    cedula,
-    telefono,
-    correo
-  };
+    const existe = duenos.some(d => d.cedula === cedula);
+    if (existe) {
+      alert('Ya existe un dueño con esa cédula.');
+      return callback && callback(false);
+    }
 
-  duenos.push(nuevoDueno);
-  alert('Dueño registrado correctamente.');
+    const nuevoDueno = {
+      id: generarId(),
+      nombre,
+      cedula,
+      telefono,
+      correo
+    };
+
+    duenos.push(nuevoDueno);
+    alert('Dueño registrado correctamente (validación simulada).');
+    callback && callback(true);
+  }, 1500);
 }
 
-function registrarMascota() {
+function registrarMascotaAsync(callback) {
   const nombre = prompt('Ingrese el nombre de la mascota:');
-  if (!validarTexto(nombre)) return alert('Nombre inválido.');
-
   const especie = prompt(`Ingrese la especie (${especiesValidas.join(', ')}):`);
-  if (!especiesValidas.includes(especie)) return alert('Especie inválida.');
-
   const edad = prompt('Ingrese la edad en años:');
-  if (!validarNumeroPositivo(edad)) return alert('Edad inválida.');
-
   const peso = prompt('Ingrese el peso en kilogramos:');
-  if (!validarNumeroPositivo(peso)) return alert('Peso inválido.');
-
   const estadoSalud = prompt(`Ingrese el estado de salud (${estadosSaludValidos.join(', ')}):`);
-  if (!estadosSaludValidos.includes(estadoSalud)) return alert('Estado de salud inválido.');
-
   const cedulaDueno = prompt('Ingrese la cédula del dueño:');
-  if (!validarTexto(cedulaDueno)) return alert('Cédula inválida.');
 
-  // Verificar que el dueño exista
-  const duenoEncontrado = duenos.find(d => d.cedula === cedulaDueno);
-  if (!duenoEncontrado) return alert('No existe un dueño con esa cédula.');
+  // Simulamos verificación de existencia del dueño (2 segundos)
+  setTimeout(() => {
+    if (![nombre, especie, estadoSalud, cedulaDueno].every(validarTexto) ||
+        !validarNumeroPositivo(edad) ||
+        !validarNumeroPositivo(peso) ||
+        !especiesValidas.includes(especie) ||
+        !estadosSaludValidos.includes(estadoSalud)) {
+      alert('Datos inválidos. Verifica los campos e intenta nuevamente.');
+      return callback && callback(false);
+    }
 
-  const nuevaMascota = {
-    id: generarId(),
-    nombre,
-    especie,
-    edad: Number(edad),
-    peso: Number(peso),
-    estadoSalud,
-    idDueno: duenoEncontrado.id
-  };
+    const dueno = duenos.find(d => d.cedula === cedulaDueno);
+    if (!dueno) {
+      alert('No existe un dueño con esa cédula.');
+      return callback && callback(false);
+    }
 
-  mascotas.push(nuevaMascota);
-  alert('Mascota registrada correctamente.');
+    const nuevaMascota = {
+      id: generarId(),
+      nombre,
+      especie,
+      edad: Number(edad),
+      peso: Number(peso),
+      estadoSalud,
+      idDueno: dueno.id
+    };
+
+    mascotas.push(nuevaMascota);
+    alert('Mascota registrada correctamente (validación simulada).');
+    callback && callback(true);
+  }, 2000);
 }
+
 
 function listarMascotas() {
   if (mascotas.length === 0) {
@@ -216,3 +225,4 @@ function verMascotasDeDuenos() {
   alert(mensaje);
 }
 
+window.main = main;
