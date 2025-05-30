@@ -127,3 +127,25 @@ function listarMascotas() {
   alert(listado);
 }
 
+function buscarMascotaPorNombre() {
+  const nombreBuscado = prompt("Ingrese el nombre de la mascota a buscar:");
+  if (!validarTexto(nombreBuscado)) {
+    alert("Nombre inválido.");
+    return;
+  }
+
+  const encontrada = mascotas.filter(m => m.nombre.toLowerCase() === nombreBuscado.toLowerCase());
+  if (encontrada.length === 0) {
+    alert("No se encontró ninguna mascota con ese nombre.");
+    return;
+  }
+
+  let resultado = "Mascotas encontradas:\n\n";
+  encontrada.forEach((m, i) => {
+    const dueno = duenos.find(d => d.id === m.idDueno);
+    resultado += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad} años\n   Peso: ${m.peso} kg\n   Estado de salud: ${m.estadoSalud}\n   Dueño: ${dueno ? dueno.nombre : "Desconocido"}\n\n`;
+  });
+
+  alert(resultado);
+}
+
