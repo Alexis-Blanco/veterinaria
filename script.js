@@ -149,3 +149,70 @@ function buscarMascotaPorNombre() {
   alert(resultado);
 }
 
+function actualizarEstadoMascota() {
+  const nombre = prompt("Ingrese el nombre de la mascota a actualizar:");
+  if (!validarTexto(nombre)) {
+    alert("Nombre inválido.");
+    return;
+  }
+
+  const mascota = mascotas.find(m => m.nombre.toLowerCase() === nombre.toLowerCase());
+  if (!mascota) {
+    alert("No se encontró ninguna mascota con ese nombre.");
+    return;
+  }
+
+  const nuevoEstado = prompt(`Ingrese el nuevo estado de salud (${estadosSaludValidos.join(', ')}):`);
+  if (!estadosSaludValidos.includes(nuevoEstado)) {
+    alert("Estado de salud inválido.");
+    return;
+  }
+
+  mascota.estadoSalud = nuevoEstado;
+  alert("Estado de salud actualizado correctamente.");
+}
+
+function eliminarMascotaPorNombre() {
+  const nombre = prompt("Ingrese el nombre de la mascota a eliminar:");
+  if (!validarTexto(nombre)) {
+    alert("Nombre inválido.");
+    return;
+  }
+
+  const index = mascotas.findIndex(m => m.nombre.toLowerCase() === nombre.toLowerCase());
+  if (index === -1) {
+    alert("No se encontró ninguna mascota con ese nombre.");
+    return;
+  }
+
+  mascotas.splice(index, 1);
+  alert("Mascota eliminada correctamente.");
+}
+
+function verMascotasDeDuenos() {
+  const cedula = prompt("Ingrese la cédula del dueño:");
+  if (!validarTexto(cedula)) {
+    alert("Cédula inválida.");
+    return;
+  }
+
+  const dueno = duenos.find(d => d.cedula === cedula);
+  if (!dueno) {
+    alert("No se encontró ningún dueño con esa cédula.");
+    return;
+  }
+
+  const mascotasDelDueno = mascotas.filter(m => m.idDueno === dueno.id);
+  if (mascotasDelDueno.length === 0) {
+    alert(`El dueño ${dueno.nombre} no tiene mascotas registradas.`);
+    return;
+  }
+
+  let mensaje = `Mascotas de ${dueno.nombre}:\n\n`;
+  mascotasDelDueno.forEach((m, i) => {
+    mensaje += `${i + 1}. Nombre: ${m.nombre}\n   Especie: ${m.especie}\n   Edad: ${m.edad} años\n   Peso: ${m.peso} kg\n   Estado de salud: ${m.estadoSalud}\n\n`;
+  });
+
+  alert(mensaje);
+}
+
