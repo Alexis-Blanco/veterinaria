@@ -9,7 +9,7 @@ const generarId = () => Math.random().toString(36).substr(2, 9);
 const validarTexto = texto => texto && texto.trim() !== '';
 const validarNumeroPositivo = num => !isNaN(num) && Number(num) > 0;
 const estadosSaludValidos = ['Sano', 'Enfermo', 'En tratamiento'];
-const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Otro'];
+const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Pez', 'Otro'];
 
 // Función para mostrar menú y pedir opción
 function mostrarMenu() {
@@ -45,3 +45,33 @@ function main() {
     }
   } while(opcion !== '8');
 }
+
+function registrarDuenos() {
+  const nombre = prompt('Ingrese el nombre del dueño:');
+  if (!validarTexto(nombre)) return alert('Nombre inválido.');
+
+  const cedula = prompt('Ingrese la cédula:');
+  if (!validarTexto(cedula)) return alert('Cédula inválida.');
+
+  const telefono = prompt('Ingrese el teléfono:');
+  if (!validarTexto(telefono)) return alert('Teléfono inválido.');
+
+  const correo = prompt('Ingrese el correo electrónico:');
+  if (!validarTexto(correo)) return alert('Correo inválido.');
+
+  // Verificar que la cédula sea única
+  const existe = duenos.some(d => d.cedula === cedula);
+  if (existe) return alert('Ya existe un dueño con esa cédula.');
+
+  const nuevoDueno = {
+    id: generarId(),
+    nombre,
+    cedula,
+    telefono,
+    correo
+  };
+
+  duenos.push(nuevoDueno);
+  alert('Dueño registrado correctamente.');
+}
+
