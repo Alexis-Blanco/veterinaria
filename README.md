@@ -1,6 +1,6 @@
 # 🐾 Happy Paws Veterinary System
 
-An interactive JavaScript-based application to manage pets and their owners for a veterinary clinic. Built entirely with **vanilla JavaScript**, it demonstrates core programming concepts such as **modularity**, **callbacks**, **promises**, and **async/await** without relying on any external libraries or persistent storage.
+An interactive JavaScript-based application to manage pets and their owners for a veterinary clinic. Built entirely with **JavaScript**, it demonstrates core programming concepts such as **modularity**, **callbacks**, **promises**, and **async/await** without relying on any external libraries or persistent storage.
 
 ---
 

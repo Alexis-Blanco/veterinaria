@@ -3,7 +3,7 @@
 const duenos = [];
 const mascotas = [];
 
-const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Otro'];
+const especiesValidas = ['Perro', 'Gato', 'Ave', 'Reptil', 'Pez', 'Otro'];
 const estadosSaludValidos = ['Sano', 'Enfermo', 'En tratamiento'];
 
 // Utilidades
@@ -175,8 +175,8 @@ function main() {
       case '5': actualizarEstadoMascotaAsync(); break;
       case '6': eliminarMascotaPorNombreAsync(); break;
       case '7': verMascotasDeDuenoAsync(); break;
-      case '8': alert('Saliendo...'); break;
-      default: alert('Opción inválida');
+      case '8': alert('Saliendo del programa. Gracias por usar nuestra app'); break;
+      default: alert('Opción inválida, escoja una opción válida.');
     }
   } while (opcion !== '8');
 }
